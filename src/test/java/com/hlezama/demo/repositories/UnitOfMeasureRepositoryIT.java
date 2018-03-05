@@ -14,11 +14,11 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class UnitOfMeasureRepositoryTest {
+public class UnitOfMeasureRepositoryIT {
   @Autowired UnitOfMeasureRepository unitOfMeasureRepository;
 
   @Before
-  public void setUp() throws Exception {}
+  public void setUp(){}
 
   @Test
   public void findByDescription() {
