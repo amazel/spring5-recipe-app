@@ -57,9 +57,21 @@ public class RecipeServiceImplTest {
 
 
     @Test
-    public void getRecipes() {
+    public void getRecipesTest() {
 
         Set<Recipe> recipes = recipeService.getRecipes();
         assertEquals(recipes.size(), 1);
+    }
+
+    @Test
+    public void testDeleteById(){
+        //given
+        Long idToDelete = 2L;
+
+        //when
+        recipeService.deleteById(idToDelete);
+
+        //then
+        verify(recipeRepository,times(1)).deleteById(anyLong());
     }
 }
