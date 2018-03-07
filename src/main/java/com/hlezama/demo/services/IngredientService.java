@@ -4,4 +4,5 @@ import com.hlezama.demo.commands.IngredientCommand;
 
 public interface IngredientService {
     IngredientCommand findByRecipeIdAndIngredientId(Long recipeId, Long id);
+    IngredientCommand saveRecipeIngredient(IngredientCommand ingredientCommand);
 }
