@@ -111,7 +111,7 @@ public class IngredientControllerTest {
         when(recipeService.findCommandById(anyLong())).thenReturn(command);
         when(unitOfMeasureService.listAllUOM()).thenReturn(new HashSet<>());
 
-        mockMvc.perform(post("/recipe/10/ingredient/new"))
+        mockMvc.perform(get("/recipe/10/ingredient/new"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("recipe/ingredient/ingredientform"))
                 .andExpect(model().attributeExists("ingredient"))
