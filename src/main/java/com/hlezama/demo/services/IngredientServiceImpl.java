@@ -74,14 +74,48 @@ public class IngredientServiceImpl implements IngredientService {
                     .orElseThrow(() -> new RuntimeException("UOM NOT FOUND")));
 
         } else {
-            recipe.addIngredient(ingredientCommandToIngredient.convert(ingredientCommand));
+            Ingredient ingredient = ingredientCommandToIngredient.convert(ingredientCommand);
+            recipe.addIngredient(ingredient);
         }
         Recipe savedRecipe = recipeRepository.save(recipe);
 
-        //todo check for fail
 
-        return ingredientToIngredientCommand.convert(savedRecipe.getIngredients().stream()
+        Optional<Ingredient> savedIngredientOpt = savedRecipe.getIngredients().stream()
                 .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
-                .findFirst().get());
+                .findFirst();
+
+        if (!savedIngredientOpt.isPresent()) {
+            savedIngredientOpt = savedRecipe.getIngredients().stream()
+                    .filter(ingredient -> ingredient.getDescription().equals(ingredientCommand.getDescription()))
+                    .filter(ingredient -> ingredient.getAmount().equals(ingredientCommand.getAmount()))
+                    .filter(ingredient -> ingredient.getUnitOfMeasure().getId().equals(ingredientCommand.getUnitOfMeasure().getId()))
+                    .findFirst()
+            ;
+        }
+
+
+        //todo check for fail
+        return ingredientToIngredientCommand.convert(savedIngredientOpt.get());
+    }
+
+    @Override
+    public void deleteRecipeIngredient(Long recipeId, Long ingredientId) {
+        Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
+        if (recipeOptional.isPresent()) {
+            Recipe recipe = recipeOptional.get();
+            Optional<Ingredient>  ingredientOptional = recipe
+                    .getIngredients()
+                    .stream()
+                    .filter(ingredient -> ingredient.getId().equals(ingredientId))
+                    .findFirst();
+            if(ingredientOptional.isPresent()){
+                Ingredient ingredientToDelete = ingredientOptional.get();
+                ingredientToDelete.setRecipe(null);
+                recipe.getIngredients().remove(ingredientToDelete);
+                recipeRepository.save(recipe);
+            }
+        } else {
+            //todo handle error
+        }
     }
 }
