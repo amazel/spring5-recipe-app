@@ -1,11 +1,14 @@
 package com.hlezama.demo.controllers;
 
 import com.hlezama.demo.commands.RecipeCommand;
+import com.hlezama.demo.exceptions.NotFoundException;
 import com.hlezama.demo.services.RecipeService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 @Slf4j
 @Controller
@@ -51,5 +54,17 @@ public class RecipeController {
         recipeService.deleteById(id);
         return "redirect:/";
     }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NotFoundException.class)
+    public ModelAndView handleNotFound(Exception e){
+        log.error("Handling NOT FOUND EXCEPTION");
+log.error(e.getMessage());
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("exception",e);
+        mav.setViewName("404error");
+        return mav;
+    }
+
 
 }

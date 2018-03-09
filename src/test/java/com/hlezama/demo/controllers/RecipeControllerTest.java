@@ -2,6 +2,7 @@ package com.hlezama.demo.controllers;
 
 import com.hlezama.demo.commands.RecipeCommand;
 import com.hlezama.demo.domain.Recipe;
+import com.hlezama.demo.exceptions.NotFoundException;
 import com.hlezama.demo.services.RecipeService;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,9 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,7 +31,8 @@ public class RecipeControllerTest {
         MockitoAnnotations.initMocks(this);
 
         recipeController = new RecipeController(recipeService);
-        mockMvc = MockMvcBuilders.standaloneSetup(recipeController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(recipeController)
+                .setControllerAdvice(new ControllerExceptionHandler()).build();
     }
 
 
@@ -87,11 +87,29 @@ public class RecipeControllerTest {
     }
 
     @Test
-    public void testDeleteAction() throws  Exception{
+    public void testDeleteAction() throws Exception {
         mockMvc.perform(get("/recipe/1/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
 
-        verify(recipeService,times(1)).deleteById(anyLong());
+        verify(recipeService, times(1)).deleteById(anyLong());
+    }
+
+    @Test
+    public void testGetRecipeNotFound() throws Exception {
+        when(recipeService.findById(anyLong())).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(get("/recipe/100/show"))
+                .andExpect(status().isNotFound())
+
+                .andExpect(view().name("404error"));
+    }
+
+    @Test
+    public void testNumberFormatException() throws Exception {
+
+        mockMvc.perform(get("/recipe/10sd0/show"))
+                .andExpect(status().isBadRequest())
+                .andExpect(view().name("400error"));
     }
 }

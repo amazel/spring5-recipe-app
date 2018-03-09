@@ -3,6 +3,7 @@ package com.hlezama.demo.services;
 import com.hlezama.demo.converters.RecipeCommandToRecipe;
 import com.hlezama.demo.converters.RecipeToRecipeCommand;
 import com.hlezama.demo.domain.Recipe;
+import com.hlezama.demo.exceptions.NotFoundException;
 import com.hlezama.demo.repositories.RecipeRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +65,7 @@ public class RecipeServiceImplTest {
     }
 
     @Test
-    public void testDeleteById(){
+    public void testDeleteById() {
         //given
         Long idToDelete = 2L;
 
@@ -72,6 +73,13 @@ public class RecipeServiceImplTest {
         recipeService.deleteById(idToDelete);
 
         //then
-        verify(recipeRepository,times(1)).deleteById(anyLong());
+        verify(recipeRepository, times(1)).deleteById(anyLong());
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void getReceipeByIdNotFound() {
+        Optional<Recipe> recipeOptional = Optional.empty();
+        when(recipeRepository.findById(anyLong())).thenReturn(recipeOptional);
+        Recipe recipeReturned = recipeService.findById(1L);
     }
 }
